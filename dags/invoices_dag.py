@@ -45,7 +45,8 @@ def transform_data():
                                 index_col=0
                                 )
 
-    invoices_data.to_csv(path_or_buf=transformed_path)
+    filtered_invoices_data = invoices_data[invoices_data['InvoiceDate'].dt.strftime("%Y-%m-%d") == '{{ ds }}']
+    filtered_invoices_data.to_csv(path_or_buf=transformed_path)
 
 
 def store_in_db(*args, **kwargs):
@@ -104,6 +105,19 @@ with DAG(dag_id="invoices_dag",
         postgres_conn_id='postgres',
         database='pluralsight'
     )
+
+    # To view the saved data in table. Open postgres cli from docker app
+    """
+    psql -U user(or created role) -d database -> refer init.sql to see all the roles
+    psql -U postgres -d pluralsight (or) psql -U airflow -d pluralsight 
+    pluralsight=# \dt
+              List of relations
+     Schema |   Name   | Type  |  Owner  
+    --------+----------+-------+---------
+     public | invoices | table | airflow
+     public | report   | table | airflow
+    (2 rows)
+    """
 
     save_into_db = PythonOperator(
         task_id='save_into_db',

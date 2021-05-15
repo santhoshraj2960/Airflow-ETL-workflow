@@ -1,4 +1,4 @@
-CREATE TABLE report
+CREATE TABLE report{{ ds_nodash }}
 AS
 SELECT invoices.stockcode,
        invoices.country,
@@ -6,5 +6,6 @@ SELECT invoices.stockcode,
        AVG(invoices.quantity) as avg_quantity,
        AVG(invoices.unitprice) * AVG(invoices.quantity) as gain
 FROM invoices
+where invoices.invoicedate = '{{ ds }}'
 GROUP BY 1,2
 ORDER BY 5 DESC
