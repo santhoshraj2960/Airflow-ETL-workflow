@@ -7,9 +7,10 @@ import requests
 import json
 
 from airflow import DAG
-from airflow.contrib.operators.databricks_operator import DatabricksSubmitRunOperator
+from airflow.contrib.operators.databricks_operator import DatabricksSubmitRunOperator, DatabricksRunNowOperator
 from airflow.hooks.base_hook import BaseHook
 from airflow.operators.python_operator import PythonOperator
+from airflow.models import Variable
 
 args = {
     'owner': 'pluralsightws165',
@@ -19,6 +20,7 @@ args = {
 }
 
 dag = DAG(dag_id='example_databricks_operator', default_args=args, schedule_interval='@daily')
+cluster_id = None
 
 '''
 new_cluster = {
@@ -28,11 +30,13 @@ new_cluster = {
 }
 '''
 
-def create_databricks_cluster():
+
+def create_databricks_cluster(**kwargs):
     """
 
     :return: cluster_id
     """
+    global cluster_id
     host = json.loads(BaseHook.get_connection("databricks_default").get_extra())['host']
     DOMAIN = host.split("https://")[1]
     TOKEN = json.loads(BaseHook.get_connection("databricks_default").get_extra())['token']
@@ -47,42 +51,55 @@ def create_databricks_cluster():
             "spark_env_vars": {
                 "PYSPARK_PYTHON": "/databricks/python3/bin/python3"
             },
-            "num_workers": 0
+            "num_workers": 0,
             "autotermination_minutes": 30
         }
     )
 
     if response.status_code == 200:
         print(response.json()['cluster_id'])
+        Variable.set('cluster_id', response.json()['cluster_id'])
     else:
         print("Error launching cluster: %s: %s" % (response.json()["error_code"], response.json()["message"]))
-
-    return response.json()['cluster_id']
 
 
 with dag:
     # Example of using the JSON parameter to initialize the operator.
+    '''
     create_cluster_task = PythonOperator(
         task_id='create_cluster',
-        python_callable=create_databricks_cluster
+        python_callable=create_databricks_cluster,
+    )
+    '''
+    # print("********notebook task params = ", str(notebook_task_params))
+
+    '''
+    notebook_task2 = DatabricksRunNowOperator(task_id='notebook_task',
+                                              dag=dag,
+                                              json={
+                                                  'existing_cluster_id': Variable.get('cluster_id'),
+                                                  'notebook_task': {
+                                                      'notebook_path': '/ETLProdNotebooks/setup_and_mount_storage',
+                                                  },
+                                              })
+    '''
+
+    notebook_task2 = DatabricksRunNowOperator(
+        task_id='yellow_taxi_etl_task',
+        job_id=108,
+        notebook_params={}
     )
 
-    cluster_id = create_cluster_task.xcom_pull('create_cluster')
-
-    print('********cluster_id ************* = ', cluster_id)
-
-    notebook_task_params = {
-        'existing_cluster_id': str(cluster_id),
-        'notebook_task': {
-            'notebook_path': '/ETLProdNotebooks/setup_and_mount_storage',
-        },
-    }
-
-    print("********notebook task params = ", str(notebook_task_params))
-
+    '''
     notebook_task = DatabricksSubmitRunOperator(
-      task_id='notebook_task',
-      dag=dag,
-      json=notebook_task_params)
+        task_id='notebook_task',
+        dag=dag,
+        json={
+            'existing_cluster_id': Variable.get('cluster_id'),
+            'notebook_task': {
+                'notebook_path': '/ETLProdNotebooks/setup_and_mount_storage',
+            },
+        })
+    '''
 
-    cluster_id >> notebook_task
+    notebook_task2
