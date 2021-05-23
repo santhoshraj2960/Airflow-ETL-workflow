@@ -19,7 +19,7 @@ args = {
     'start_date': airflow.utils.dates.days_ago(0)
 }
 
-dag = DAG(dag_id='example_databricks_operator', default_args=args, schedule_interval='@daily')
+dag = DAG(dag_id='ETL_newyork_taxi_operator', default_args=args, schedule_interval='@daily')
 cluster_id = None
 
 '''
