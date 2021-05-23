@@ -65,32 +65,48 @@ def create_databricks_cluster(**kwargs):
 
 with dag:
     # Example of using the JSON parameter to initialize the operator.
-    '''
-    create_cluster_task = PythonOperator(
-        task_id='create_cluster',
-        python_callable=create_databricks_cluster,
+
+    mount_storage_accounts = DatabricksRunNowOperator(
+        task_id='mount_storage_accounts_task',
+        job_id=100,
+        notebook_params={}
     )
-    '''
-    # print("********notebook task params = ", str(notebook_task_params))
 
-    '''
-    notebook_task2 = DatabricksRunNowOperator(task_id='notebook_task',
-                                              dag=dag,
-                                              json={
-                                                  'existing_cluster_id': Variable.get('cluster_id'),
-                                                  'notebook_task': {
-                                                      'notebook_path': '/ETLProdNotebooks/setup_and_mount_storage',
-                                                  },
-                                              })
-    '''
+    copy_data_to_delta_lake = DatabricksRunNowOperator(
+        task_id='copy_data_to_delta_lake_task',
+        job_id=117,
+        notebook_params={}
+    )
 
-    notebook_task2 = DatabricksRunNowOperator(
+    run_etl_yellow_taxi = DatabricksRunNowOperator(
         task_id='yellow_taxi_etl_task',
         job_id=108,
         notebook_params={}
     )
 
-    '''
+    run_etl_green_taxi = DatabricksRunNowOperator(
+        task_id='green_taxi_etl_task',
+        job_id=123,
+        notebook_params={}
+    )
+
+    run_etl_fhv_taxi = DatabricksRunNowOperator(
+        task_id='fhv_taxi_etl_task',
+        job_id=133,
+        notebook_params={}
+    )
+
+    un_mount_storage = DatabricksRunNowOperator(
+        task_id='unmount_storage_after_etl_task',
+        job_id=139,
+        notebook_params={}
+    )
+
+    mount_storage_accounts >> copy_data_to_delta_lake
+    copy_data_to_delta_lake >> [run_etl_yellow_taxi, run_etl_green_taxi, run_etl_fhv_taxi]
+    [run_etl_yellow_taxi, run_etl_green_taxi, run_etl_fhv_taxi] >> un_mount_storage
+
+'''
     notebook_task = DatabricksSubmitRunOperator(
         task_id='notebook_task',
         dag=dag,
@@ -100,6 +116,21 @@ with dag:
                 'notebook_path': '/ETLProdNotebooks/setup_and_mount_storage',
             },
         })
-    '''
 
-    notebook_task2
+    create_cluster_task = PythonOperator(
+        task_id='create_cluster',
+        python_callable=create_databricks_cluster,
+    )
+    '''
+# print("********notebook task params = ", str(notebook_task_params))
+
+'''
+notebook_task2 = DatabricksRunNowOperator(task_id='notebook_task',
+                                          dag=dag,
+                                          json={
+                                              'existing_cluster_id': Variable.get('cluster_id'),
+                                              'notebook_task': {
+                                                  'notebook_path': '/ETLProdNotebooks/setup_and_mount_storage',
+                                              },
+                                          })
+'''
