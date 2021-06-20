@@ -2,24 +2,21 @@
 
 Airflow is a workflow management tool developed by Apache. Airflow is used to model workflow of the ETL described below
 
-The ETL pipeline used for this project is NYC yellow, green and fhv taxi trips data. 
+The ETL pipeline used for this project is to extract, transform and load NYC yellow, green and fhv taxi trips data. 
 
 Brief explanation of the ETL
 1. The data is extracted in a raw format from Azure Data Lake gen 1 (**Bronze**) 
 2. Transfromed to add KPIs (**Silver**) 
-3. Facts and reports are created (**Gold**)
-4. The reports are then stored it in a **delta lake** in **Azure Datalake Gen 2 storage**
+3. Facts and reports are created and stored in **delta lake** in **Azure Datalake Gen 2 storage** (**Gold**)
 
 [ETL code for respective taxi trips can be found here](https://github.com/santhoshraj2960/AzureDatabricksLearn/tree/main/notebooks/ETLProdNotebooks/)
 
-**Postgres** is used to store the airflow's meta data (job runs and status)
+**Postgres** is used to store airflow's meta data (job runs and statuses)
 
 Docker has also been used to facilitate easy setup
 
 [Learning material used](https://app.pluralsight.com/library/courses/productionalizing-data-pipelines-apache-airflow/table-of-contents)
 
-
-# ETL pipeline for generating facts of different NYC taxi
 
 ## Order of execution of tasks graph (DAG)
 ![alt text](https://github.com/santhoshraj2960/airflow_pluralsight/blob/main/screenshots/tasks_graph.png)
@@ -50,7 +47,7 @@ Docker has also been used to facilitate easy setup
 - [Unmount storage](https://github.com/santhoshraj2960/AzureDatabricksLearn/blob/main/notebooks/ETLProdNotebooks/unmount_storage_and_cleanup.ipynb)
 
 
-# Steps to run the project
+## Steps to run the project
 1. Download docker
 2. Clone the repo
 3. Navigate to the main directory and run docker-compose up --build
