@@ -1,8 +1,18 @@
-Repo that contains basic airflow tutorial. 
+# Airflow - ETL NYC taxi
 
-Airflow is used for scheduling and invoking tasks in an ETL pipeline
+Airflow is a workflow management tool developed by Apache. Airflow has been used to define the worflow of the ETL process described below
 
-Postgres has been used to store the meta data of the tasks (or job) runs and job status
+The ETL pipeline used for this project is NYC yellow, green and fhv taxi trips data. 
+
+Brief explanation of the ETL
+1. The data is extracted in a raw format from Azure Data Lake gen 1 (**Bronze**) 
+2. Transfromed to add KPIs (**Silver**) 
+3. Facts and reports are created (**Gold**)
+4. The reports are then stored it in a **delta table** in **Azure Datalake Gen 2 storage**
+
+ETL code for respective taxi trips can be found here https://github.com/santhoshraj2960/AzureDatabricksLearn/tree/main/notebooks/ETLProdNotebooks/
+
+**Postgres** has been used to store the meta data of the tasks (or job) runs and job status
 
 Docker has also been used to facilitate easy setup
 
@@ -12,7 +22,7 @@ https://app.pluralsight.com/library/courses/productionalizing-data-pipelines-apa
 
 # ETL pipeline for generating facts of different NYC taxi
 
-## Order of execution of tasks graph
+## Order of execution of tasks graph (DAG)
 ![alt text](https://github.com/santhoshraj2960/airflow_pluralsight/blob/main/screenshots/tasks_graph.png)
 
 ## Execution tree
@@ -40,3 +50,9 @@ https://app.pluralsight.com/library/courses/productionalizing-data-pipelines-apa
 - 
 - Unmount storage: https://github.com/santhoshraj2960/AzureDatabricksLearn/blob/main/notebooks/ETLProdNotebooks/unmount_storage_and_cleanup.ipynb
 
+
+# Steps to run the project
+1. Download docker
+2. Clone the repo
+3. Navigate to the main directory and run docker-compose up --build
+4. Visit http://localhost:8080/ to view the dags
