@@ -1,6 +1,6 @@
 # Airflow - ETL NYC taxi
 
-Airflow is a workflow management tool developed by Apache. Airflow has been used to define the worflow of the ETL process described below
+Airflow is a workflow management tool developed by Apache. Airflow is used to model workflow of the ETL described below
 
 The ETL pipeline used for this project is NYC yellow, green and fhv taxi trips data. 
 
@@ -12,7 +12,7 @@ Brief explanation of the ETL
 
 ETL code for respective taxi trips can be found here https://github.com/santhoshraj2960/AzureDatabricksLearn/tree/main/notebooks/ETLProdNotebooks/
 
-**Postgres** has been used to store the meta data of the tasks (or job) runs and job status
+**Postgres** is used to store the airflow's meta data (job runs and status)
 
 Docker has also been used to facilitate easy setup
 
